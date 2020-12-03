@@ -1,0 +1,2 @@
+build:
+	./mvnw package

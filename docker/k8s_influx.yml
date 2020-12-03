@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: smec-exercise-influx-deployment
+  labels:
+    app: smec-exercise
+spec:
+  serviceName: smec-exercise-influx-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smec-exercise-influx
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ ReadWriteOnce ]
+        storageClassName: local-storage
+        resources:
+          requests:
+            storage: 2Gi
+  template:
+    metadata:
+      labels:
+        app: smec-exercise-influx
+    spec:
+      containers:
+        - name: smec-exercise-influx-container
+          image: influxdb:1.7.10-alpine
+          envFrom:
+            - secretRef:
+                name: smec-account-exercise-influx-creds
+          env:
+            - name: INFLUXDB_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: smec-account-exercise-config
+                  key: INFLUX_DATABASE
+          volumeMounts:
+            - name: data
+              mountPath: /opt/influxdb/shared
+          ports:
+            - containerPort: 8086
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: smec-exercise-influx-service
+spec:
+  selector:
+    app: smec-exercise-influx
+  ports:
+    - protocol: TCP
+      port: 8086
+      targetPort: 8086

@@ -1,0 +1,42 @@
+POST http://192.168.99.100:31151/account/
+Content-Type: application/json
+
+{
+"name":  "username"
+}
+
+###
+
+GET http://192.168.99.100:31151/account/64b56c03-2b60-4f60-8d55-a03c4ca40d89
+Content-Type: application/json
+
+###
+
+POST http://localhost:8080/event/account/100f512a-869b-4959-8727-ca7f3acc1ad2
+Content-Type: application/json
+
+{
+  "type": "updated"
+}
+
+###
+
+POST http://localhost:8080/event/account/100f512a-869b-4959-8727-ca7f3acc1ad2
+Content-Type: application/json
+
+{
+  "type": "created"
+}
+###
+
+GET http://localhost:8080/event/account/100f512a-869b-4959-8727-ca7f3acc1ad2
+Content-Type: application/json
+
+###
+
+GET http://localhost:8080/event/904f512b-f385-4c2a-a334-3da0cf97b9ce
+Content-Type: application/json
+
+###
+
+GET http://localhost:8080/statistics/account/100f512a-869b-4959-8727-ca7f3acc1ad2

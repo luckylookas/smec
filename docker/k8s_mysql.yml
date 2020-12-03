@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: smec-exercise-mysql-deployment
+  labels:
+    app: smec-exercise
+spec:
+  serviceName: smec-exercise-mysql-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smec-exercise-mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ ReadWriteOnce ]
+        storageClassName: local-storage
+        resources:
+          requests:
+            storage: 2Gi
+  template:
+    metadata:
+      labels:
+        app: smec-exercise-mysql
+    spec:
+      containers:
+        - name: smec-exercise-mysql-container
+          envFrom:
+          - secretRef:
+              name: smec-account-exercise-mysql-creds
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: smec-account-exercise-config
+                  key: MYSQL_DATABASE
+          image: mysql:5.7
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          ports:
+            - containerPort: 3306
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: smec-exercise-mysql-service
+spec:
+  selector:
+    app: smec-exercise-mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306

@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smec-exercise-app-deployment
+  labels:
+    app: smec-exercise
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smec-exercise-app
+  template:
+    metadata:
+      labels:
+        app: smec-exercise-app
+    spec:
+      containers:
+        - name: smec-exercise-app-container
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: INFLUX_HOST
+              value: smec-exercise-influx-service
+            - name: MYSQL_HOST
+              value: smec-exercise-mysql-service
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: smec-account-exercise-mysql-creds
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smec-account-exercise-mysql-creds
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: smec-account-exercise-config
+                  key: MYSQL_DATABASE
+            - name: INFLUX_USER
+              valueFrom:
+                secretKeyRef:
+                  name: smec-account-exercise-influx-creds
+                  key: INFLUXDB_USER
+            - name: INFLUX_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: smec-account-exercise-influx-creds
+                  key: INFLUXDB_USER_PASSWORD
+            - name: INFLUX_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: smec-account-exercise-config
+                  key: INFLUX_DATABASE
+          image: com.smec/account-exercise:1.0.0
+          ports:
+            - containerPort: 8080
+
+---
+
+# nodePort service to enable routing from outside the cluster, substitute with loadbalancer when running on gcp/aws/azure
+apiVersion: v1
+kind: Service
+metadata:
+  name: smec-exercise-app-service
+spec:
+  type: NodePort
+  selector:
+    app: smec-exercise-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+

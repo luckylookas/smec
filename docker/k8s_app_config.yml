@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smec-account-exercise-config
+data:
+    MYSQL_DATABASE: smec
+    INFLUX_DATABASE: events
